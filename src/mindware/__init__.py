@@ -48,8 +48,7 @@ class MindwarePlugin(AutoGPTPluginTemplate):
             str: The encrypted credential as a hex string.
         """
         public_key = serialization.load_pem_public_key(
-            public_key_str.encode('utf-8'),
-            backend=default_backend()
+            public_key_str.encode("utf-8"), backend=default_backend()
         )
 
         ciphertext = public_key.encrypt(
@@ -57,8 +56,8 @@ class MindwarePlugin(AutoGPTPluginTemplate):
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA256()),
                 algorithm=hashes.SHA256(),
-                label=None
-            )
+                label=None,
+            ),
         )
 
         return ciphertext.hex()
@@ -146,6 +145,9 @@ class MindwarePlugin(AutoGPTPluginTemplate):
 
         return prompt
 
+    def refresh_plugin_functions(self):
+        pass
+
     def can_handle_post_prompt(self) -> bool:
         return True
 
@@ -196,10 +198,12 @@ class MindwarePlugin(AutoGPTPluginTemplate):
         pass
 
     def can_handle_post_command(self) -> bool:
-        return False
+        return True
 
     def post_command(self, command_name: str, response: str) -> str:
-        pass
+        if command_name in ["enable-plugin", "disable-plugin"]:
+            print("Plugin functions refreshed.")
+        return response
 
     def can_handle_chat_completion(
         self, messages: Dict[Any, Any], model: str, temperature: float, max_tokens: int
